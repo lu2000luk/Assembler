@@ -44,7 +44,8 @@
             });
         } else {
             let userDoc = await setDoc(doc(firestore, "listing", $user?.uid), {
-                ownedProjects: [...oldUserDoc.data()?.ownedProjects, docID]
+                // @ts-ignore
+                ownedProjects: [...oldUserDoc.data()?.ownedProjects, doc(firestore, "projects", docID)]
             }, { merge: true });
         }
 
