@@ -1,3 +1,89 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+
+*, .app-font {
+    font-family: "Geist Mono", monospace;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+:root {
+    --text: #d2f0fe;
+    --background: #000a0e;
+    --primary: #72d0fd;
+    --secondary: #0204a1;
+    --accent: #5a0ffc;
+
+    --text-50: #e6f7fe;
+    --text-100: #cdeefe;
+    --text-200: #9bdefd;
+    --text-300: #69cdfc;
+    --text-400: #37bdfb;
+    --text-500: #05acfa;
+    --text-600: #048ac8;
+    --text-700: #036796;
+    --text-800: #024564;
+    --text-900: #012232;
+    --text-950: #011119;
+
+    --background-50: #e5f8ff;
+    --background-100: #ccf1ff;
+    --background-200: #99e2ff;
+    --background-300: #66d4ff;
+    --background-400: #33c5ff;
+    --background-500: #00b7ff;
+    --background-600: #0092cc;
+    --background-700: #006e99;
+    --background-800: #004966;
+    --background-900: #002533;
+    --background-950: #00121a;
+
+    --primary-50: #e6f7ff;
+    --primary-100: #cdeffe;
+    --primary-200: #9bdefd;
+    --primary-300: #68cefd;
+    --primary-400: #36bdfc;
+    --primary-500: #04adfb;
+    --primary-600: #038ac9;
+    --primary-700: #026897;
+    --primary-800: #024564;
+    --primary-900: #012332;
+    --primary-950: #001119;
+
+    --secondary-50: #e6e6ff;
+    --secondary-100: #cdcdfe;
+    --secondary-200: #9a9cfe;
+    --secondary-300: #686afd;
+    --secondary-400: #3538fd;
+    --secondary-500: #0307fc;
+    --secondary-600: #0205ca;
+    --secondary-700: #020497;
+    --secondary-800: #010365;
+    --secondary-900: #010132;
+    --secondary-950: #000119;
+
+    --accent-50: #eee6ff;
+    --accent-100: #dccdfe;
+    --accent-200: #ba9afe;
+    --accent-300: #9768fd;
+    --accent-400: #7435fd;
+    --accent-500: #5203fc;
+    --accent-600: #4102ca;
+    --accent-700: #310297;
+    --accent-800: #210165;
+    --accent-900: #100132;
+    --accent-950: #080019;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
