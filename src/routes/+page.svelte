@@ -73,9 +73,12 @@
     <Doc ref={'listing/'+$user?.uid} let:data>
         {#each data?.ownedProjects as project}
             <Doc ref={project} let:data>
-                <div class="project flex justify-start p-8 m-4 rounded-lg border-2 border-accent transition-all hover:bg-accent duration-200 cursor-pointer">
-                    <p>{data?.name}</p>
-                </div>
+                <!-- svelte-ignore a11y_consider_explicit_label -->
+                <a href="/editor/{data?.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')}">
+                    <div class="project flex justify-start p-8 m-4 rounded-lg border-2 border-accent transition-all hover:bg-accent duration-200 cursor-pointer">
+                        <p>{data?.name}</p>
+                    </div>
+                </a>
             </Doc>
         {/each}
         <span slot="loading">Loading...</span>

@@ -37,7 +37,7 @@
         let docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            build = docSnap.data().data;
+            build = JSON.parse(docSnap.data().data);
         } else {
             console.log("No such document!");
             if (browser) {
