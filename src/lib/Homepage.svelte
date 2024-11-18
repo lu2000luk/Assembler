@@ -46,40 +46,7 @@
         console.log("Getting started!");
         if (!button || !browser) return;
 
-        let preRect = button.getBoundingClientRect();
-
-        button.style.position = 'absolute';
-        button.style.left = preRect.left + 'px';
-        button.style.top = preRect.top + 'px';
-        button.style.width = preRect.width + 'px';
-        button.style.height = preRect.height + 'px';
-        button.style.zIndex = 1000;
-        button.style.display = 'flex';
-        button.style.justifyContent = 'center';
-        button.style.alignItems = 'center';
-
-        document.body.style.cursor = 'none';
-        button.style.cursor = 'none';
-
-        let postRect = button.getBoundingClientRect();
-
-        let centerX = window.innerWidth / 2 - postRect.width / 2;
-        let centerY = window.innerHeight / 2 - postRect.height / 2;
-
-        // Hide the assembler text
-        gsap.to(assembler_text, { duration: 1, opacity: 0 });
-
-        // Move the button to the center of the screen
-        gsap.to(button, { duration: 5, left: centerX + 'px', top: centerY + 'px' });
-
-        // Make the button shaky (make it move randomly in every direction with a maximum of 200px from the origin)
-        gsap.to(button, { duration: 0.1, delay: 4.8, x: Math.random() * 400 - 200, y: Math.random() * 400 - 200, repeat: -1, yoyo: true });
-
-        // Make the screen flash
-        gsap.to('body', { duration: 0.1, backgroundColor: 'white', repeat: 1, delay: 5 });
-
-        // Make the button disappear
-        gsap.to(button, { duration: 0.1, delay: 5, opacity: 0, onComplete: () => { button.style.display = 'none'; location.pathname = "/login"; } });
+        window.location.href = '/login';
     }
 </script>
 
