@@ -253,11 +253,29 @@
         <h2 class="selectedComponentType text-xl">
             {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
         </h2>
-        <div class="selectedComponentEditId mt-2">
+        <div class="selectedComponentEditId my-2 grid gap-2 grid-cols-2 items-center">
+            <p class="text-lg">ID:</p>
             <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder="Component ID" autocomplete="off" bind:value={editorIdEdit} onchange={() => {
                 if (!editorIdEdit) {return;}
                 selectedComponent.id = editorIdEdit;
             }}>
+        </div>
+        <hr>
+        <div class="selectedComponentEditProps my-2 grid gap-2 grid-cols-2 items-center">
+            {#each Object.keys(editorPropsEdit) as prop}
+                <p class="text-lg">{prop[0].toUpperCase() + prop.slice(1)}</p>
+                {#if typeof components[selectedComponent.type].props[prop] === "string"}
+                    <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsEdit[prop]} onchange={() => {
+                        if (!editorPropsEdit[prop]) {return;}
+                        selectedComponent.props[prop] = editorPropsEdit[prop];
+                    }}>
+                {:else if typeof components[selectedComponent.type].props[prop] === "number"}
+                    <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsEdit[prop]} onchange={() => {
+                        if (!editorPropsEdit[prop]) {return;}
+                        selectedComponent.props[prop] = parseInt(editorPropsEdit[prop]);
+                    }}> 
+                {/if}
+            {/each}
         </div>
     </div>
 {/if}
