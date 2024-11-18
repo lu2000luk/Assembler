@@ -7,11 +7,13 @@
     import { doc, setDoc, getDoc } from "firebase/firestore"; 
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
+    import Plus from "lucide-svelte/icons/plus";
 
     import Text from '$lib/components/text.svelte';
     import Group from "$lib/components/group.svelte";
     import Button from "$lib/components/button.svelte";
     import Input from "$lib/components/input.svelte";
+    import Separator from "$lib/components/separator.svelte";
     const components = {
         "text": {
             component: Text,
@@ -49,48 +51,30 @@
             idPrefix: "input",
             canHaveChildren: false,
             availableEvents: ["change", "focus", "click"]
+        },
+        "separator": {
+            component: Separator,
+            props: {
+                distance: 1
+            },
+            idPrefix: "separator",
+            canHaveChildren: false,
+            availableEvents: []
         }
     }
 
-    let build = $state({
-        components: [
-            {
-                id: "text1",
-                type: "text",
-                props: {
-                    text: "Hello world!",
-                    size: 4
-                }
-            },
-            {
-                id: "group1",
-                type: "group",
-                props: {
-                    gap: 10
-                },
-                children: [
-                    {
-                        id: "input1",
-                        type: "input",
-                        props: {
-                            placeholder: "Write here..."
-                        }
-                    },
-                    {
-                        id: "button1",
-                        type: "button",
-                        props: {
-                            text: "Click me!"
-                        }
-                    }
-                ]
-            }
-        ]
-    });
+    let componentIcons = {
+        "text": "📝",
+        "group": "📦",
+        "button": "🔘",
+        "input": "📄",
+        "separator": "➖"
+    }
+
+    let build = $state({ components: [] });
+    let addingComponent = $state(false);
 
     async function getBuild() {
-        return;
-
         let docRef = doc(firestore, "projects", id);
         let docSnap = await getDoc(docRef);
 
@@ -102,6 +86,17 @@
                 location.href = '/';
             }
         }
+    }
+
+    function addComponent(name) {
+        let newComponent = {
+            type: name,
+            id: Math.random().toString(36).substring(7),
+            props: components[name].props
+        }
+
+        build.components.push(newComponent);
+        addingComponent = false;
     }
 </script>
 
@@ -127,6 +122,23 @@
                         <br>
                     {/if}
                 {/each}
+                <div class="newComponent">
+                    {#if addingComponent}
+                        <div class="flex gap-2 flex-col border-2 border-accent p-6 rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto ">
+                            {#each Object.keys(components) as component}
+                                <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {addComponent(component)}}>
+                                    {componentIcons[component]} {component[0].toUpperCase() + component.slice(1)}
+                                </button>
+                            {/each}
+                        </div>
+                    {:else}
+                        <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingComponent = true}>
+                            <Plus class="text-text" />
+                            Add new component
+                        </button>
+                    {/if}
+                    
+                </div>
             </div>
         </div>
     </div>
