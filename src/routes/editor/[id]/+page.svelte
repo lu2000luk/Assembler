@@ -274,23 +274,12 @@
                 {#if typeof components[selectedComponent.type].props[prop] === "string"}
                     <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
                         if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
-                        build.components = build.components.map(component => {
-                            if (component.id === selectedComponent.id) {
-                                component.props[prop] = editorPropsValues[prop];
-                            }
-                            return component;
-                        });
-                        alert(JSON.stringify(build));
+                        selectedComponent.props[prop] = editorPropsValues[prop];
                     }}>
                 {:else if typeof components[selectedComponent.type].props[prop] === "number"}
                     <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
                         if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
-                        build.components = build.components.map(component => {
-                            if (component.id === selectedComponent.id) {
-                                component.props[prop] = editorPropsValues[prop];
-                            }
-                            return component;
-                        });
+                        selectedComponent.props[prop] = editorPropsValues[prop];
                     }}> 
                 {/if}
             {/each}
