@@ -93,8 +93,8 @@
         if (docSnap.exists()) {
             build = JSON.parse(docSnap.data().data);
         } else {
-            console.log("No such document!");
             if (browser) {
+                alert("No such document!");
                 location.href = '/';
             }
         }

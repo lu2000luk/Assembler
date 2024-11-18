@@ -28,9 +28,9 @@
 	<SignedIn let:signOut>
 		<div class="navbar flex justify-between m-4 items-center select-none">
 			<div class="name">
-				<p class="text-2xl cursor-pointer font-bold inline-block bg-clip-text bg-gradient-to-r from-primary to-accent transition-all" style="color: transparent;">
+				<a class="text-2xl cursor-pointer font-bold inline-block bg-clip-text bg-gradient-to-r from-primary to-accent transition-all" style="color: transparent;" href="../../">
 					Assembler
-				</p>
+				</a>
 			</div>
 			<button onclick={signOut} class="px-5 py-2 border-2 rounded-lg border-accent transition-all duration-200 hover:bg-accent cursor-pointer">Sign out</button>
 		</div>
