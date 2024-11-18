@@ -78,6 +78,8 @@
     let componentEditor = $state();
     let selectedComponent = $state();
 
+    let newComponentScroll = $state();
+
     let editorIdEdit = $state("");
     let editorPropsEdit = $state({});
     let editorEventsEdit = $state({});
@@ -181,10 +183,10 @@
 {#await getBuild()}
     <div>Loading...</div>
 {:then}
-    <div class="editorWrapper flex justify-center items-center w-full h-full border-2 border-accent">
+    <div class="editorWrapper flex justify-center items-center w-full h-full mt-8 border-2 border-accent">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
          <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="editorWindow w-full h-full overflow-y-auto select-none" onclick={edit}>
+        <div class="editorWindow w-full h-full select-none overflow-y-auto" onclick={edit}>
             <div class="renderedContent flex items-center flex-col mt-24">
                 {#key rebuild}
                     {#each build.components as component}
@@ -229,7 +231,8 @@
                         {/if}
                     {/each}
                 {/key}
-                <div class="newComponent">
+                <div class="newComponent mb-24">
+                    <div class="newComponentScroll" bind:this={newComponentScroll}></div>
                     {#if addingComponent}
                         <div class="flex gap-2 flex-col border-2 border-accent p-6 rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto ">
                             {#each Object.keys(components) as component}
@@ -242,7 +245,7 @@
                             </button>
                         </div>
                     {:else}
-                        <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingComponent = true}>
+                        <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {addingComponent = true; newComponentScroll.scrollIntoView();}}>
                             <Plus class="text-text" />
                             Add new component
                         </button>

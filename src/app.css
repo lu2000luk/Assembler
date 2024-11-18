@@ -85,11 +85,14 @@ body {
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+    width: 0px;
 }
 
 /* width */
-::-webkit-scrollbar {
+*::-webkit-scrollbar {
     width: 10px;
 }
 
