@@ -82,6 +82,8 @@
     let editorPropsEdit = $state({});
     let editorEventsEdit = $state({});
 
+    let editorPropsValues= $state({});
+
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
         let docSnap = await getDoc(docRef);
@@ -100,7 +102,8 @@
         let newComponent = {
             type: name,
             id: Math.random().toString(36).substring(7),
-            props: components[name].props
+            props: components[name].props,
+            events: {}
         }
 
         if (components[name].canHaveChildren) {
@@ -156,7 +159,6 @@
             }
 
             selectedComponent = component;
-            console.log(selectedComponent);
             editingComponent = true;
 
             let componentElement = target;
@@ -164,11 +166,12 @@
             let componentRect = componentElement.getBoundingClientRect();
 
             componentEditor.style.top = componentRect.top + "px";
-            componentEditor.style.left = (componentRect.right + 12) + "px";
+            componentEditor.style.left = (componentRect.right + 20) + "px";
 
             editorIdEdit = component.id;
             editorPropsEdit = component.props;
             editorEventsEdit = component.events;
+            editorPropsValues = component.props;
         }
     }
 </script>
@@ -179,49 +182,51 @@
     <div class="editorWrapper flex justify-center items-center w-full h-full border-2 border-accent">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
          <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="editorWindow w-full h-full overflow-y-auto" onclick={edit}>
+        <div class="editorWindow w-full h-full overflow-y-auto select-none" onclick={edit}>
             <div class="renderedContent flex items-center flex-col mt-24">
-                {#each build.components as component}
-                    {#if components[component.type]}
-                        <!-- svelte-ignore svelte_component_deprecated -->
-                         <div class="developmentComponent p-2 border-primary border-2 cursor-pointer rounded-lg">
-                            <svelte:component this={components[component.type].component} args={component.props} id={"c_"+components[component.type].idPrefix+"_"+component.id}>
-                                {#if components[component.type].canHaveChildren}
-                                    {#each component.children as child}
-                                        {#if components[child.type]}
-                                            <!-- svelte-ignore svelte_component_deprecated -->
-                                             <div class="developmentChildren p-2 border-secondary border-2 rounded-lg">
-                                                <svelte:component this={components[child.type].component} args={components[child.type].props} id={"c_"+components[component.type].idPrefix+"_"+child.id} />
-                                             </div>
-                                        {/if}
-                                    {/each}
-                                    <div class="newChildren">
-                                        {#if addingChild === component.id}
-                                            <div class="flex gap-2 flex-col border-2 border-accent p-6 rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto ">
-                                                {#each Object.keys(components) as newcomponent}
-                                                    {#if !components[newcomponent].canHaveChildren}
-                                                        <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {addChildren(newcomponent, component.id)}}>
-                                                            {componentIcons[newcomponent]} {newcomponent[0].toUpperCase() + newcomponent.slice(1)}
-                                                        </button>
-                                                    {/if}
-                                                {/each}
-                                                <button class="hover:bg-accent flex gap-2 text-text border-2 border-error py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingChild = false}>
-                                                    ❌ Close
+                {#key build}
+                    {#each build.components as component}
+                        {#if components[component.type]}
+                            <!-- svelte-ignore svelte_component_deprecated -->
+                            <div class="developmentComponent p-2 border-primary border-2 cursor-pointer rounded-lg">
+                                <svelte:component this={components[component.type].component} args={component.props} id={"c_"+components[component.type].idPrefix+"_"+component.id}>
+                                    {#if components[component.type].canHaveChildren}
+                                        {#each component.children as child}
+                                            {#if components[child.type]}
+                                                <!-- svelte-ignore svelte_component_deprecated -->
+                                                <div class="developmentChildren p-2 border-secondary border-2 rounded-lg">
+                                                    <svelte:component this={components[child.type].component} args={child.props} id={"c_"+components[component.type].idPrefix+"_"+child.id} />
+                                                </div>
+                                            {/if}
+                                        {/each}
+                                        <div class="newChildren">
+                                            {#if addingChild === component.id}
+                                                <div class="flex gap-2 flex-col border-2 border-accent p-6 rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto ">
+                                                    {#each Object.keys(components) as newcomponent}
+                                                        {#if !components[newcomponent].canHaveChildren}
+                                                            <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {addChildren(newcomponent, component.id)}}>
+                                                                {componentIcons[newcomponent]} {newcomponent[0].toUpperCase() + newcomponent.slice(1)}
+                                                            </button>
+                                                        {/if}
+                                                    {/each}
+                                                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-error py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingChild = false}>
+                                                        ❌ Close
+                                                    </button>
+                                                </div>
+                                            {:else}
+                                                <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent border-dashed py-2 px-4 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingChild = component.id}>
+                                                    <Plus class="text-text" />
+                                                    Add children
                                                 </button>
-                                            </div>
-                                        {:else}
-                                            <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent border-dashed py-2 px-4 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => addingChild = component.id}>
-                                                <Plus class="text-text" />
-                                                Add children
-                                            </button>
-                                        {/if}
-                                    </div>
-                                {/if}
-                            </svelte:component>
-                         </div>
-                        <br>
-                    {/if}
-                {/each}
+                                            {/if}
+                                        </div>
+                                    {/if}
+                                </svelte:component>
+                            </div>
+                            <br>
+                        {/if}
+                    {/each}
+                {/key}
                 <div class="newComponent">
                     {#if addingComponent}
                         <div class="flex gap-2 flex-col border-2 border-accent p-6 rounded-lg backdrop-blur-sm max-h-64 overflow-y-auto ">
@@ -265,14 +270,24 @@
             {#each Object.keys(editorPropsEdit) as prop}
                 <p class="text-lg">{prop[0].toUpperCase() + prop.slice(1)}</p>
                 {#if typeof components[selectedComponent.type].props[prop] === "string"}
-                    <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsEdit[prop]} onchange={() => {
-                        if (!editorPropsEdit[prop]) {return;}
-                        selectedComponent.props[prop] = editorPropsEdit[prop];
+                    <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
+                        if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
+                        build.components = build.components.map(component => {
+                            if (component.id === selectedComponent.id) {
+                                component.props[prop] = editorPropsValues[prop];
+                            }
+                            return component;
+                        });
                     }}>
                 {:else if typeof components[selectedComponent.type].props[prop] === "number"}
-                    <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsEdit[prop]} onchange={() => {
-                        if (!editorPropsEdit[prop]) {return;}
-                        selectedComponent.props[prop] = parseInt(editorPropsEdit[prop]);
+                    <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
+                        if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
+                        build.components = build.components.map(component => {
+                            if (component.id === selectedComponent.id) {
+                                component.props[prop] = editorPropsValues[prop];
+                            }
+                            return component;
+                        });
                     }}> 
                 {/if}
             {/each}
