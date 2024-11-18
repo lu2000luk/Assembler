@@ -174,6 +174,8 @@
             editorPropsValues = component.props;
         }
     }
+
+    let rebuild = ""
 </script>
 
 {#await getBuild()}
@@ -184,7 +186,7 @@
          <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="editorWindow w-full h-full overflow-y-auto select-none" onclick={edit}>
             <div class="renderedContent flex items-center flex-col mt-24">
-                {#key build}
+                {#key rebuild}
                     {#each build.components as component}
                         {#if components[component.type]}
                             <!-- svelte-ignore svelte_component_deprecated -->
@@ -278,6 +280,7 @@
                             }
                             return component;
                         });
+                        alert(JSON.stringify(build));
                     }}>
                 {:else if typeof components[selectedComponent.type].props[prop] === "number"}
                     <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
