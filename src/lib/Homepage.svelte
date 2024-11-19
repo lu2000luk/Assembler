@@ -12,7 +12,7 @@
     let scrolling_texts_index = $state(0);
     let scrolling_phrases = [
         'demos',
-        'APIs',
+        'API visuals',
         'tools',
         'UIs',
         'pages',

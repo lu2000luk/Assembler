@@ -4,13 +4,12 @@
     let { data } = $props();
     let { id } = data;
 
-    import { doc, setDoc, getDoc, FieldValue } from "firebase/firestore"; 
+    import { doc, setDoc, updateDoc, getDoc, FieldValue } from "firebase/firestore"; 
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
     import Plus from "lucide-svelte/icons/plus";
     import Trash2 from "lucide-svelte/icons/trash-2";
     import ChevronRight from "lucide-svelte/icons/chevron-right";
-    import Save from "lucide-svelte/icons/save";
     import { userStore } from "sveltefire";
     import { onMount, onDestroy } from "svelte";
 
@@ -119,8 +118,9 @@
 
         let docRef = doc(firestore, "projects", id);
         try {
-            await setDoc(docRef, { data: JSON.stringify(build), owner: $user.uid });
+            await updateDoc(docRef, { data: JSON.stringify(build) });
         } catch (e) {
+            console.error(e);
             saveBuildButtonDisabled = false;
 
             if (ignoreLogging) {
@@ -245,9 +245,16 @@
          <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="editorWindow w-full h-full select-none overflow-y-auto" onclick={edit}>
             <div class="absolute projectSettings m-5">
-                <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
-                    {saveBuildButtonText}
-                </button>
+                <div class="flex gap-5">
+                    <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
+                        💾 {saveBuildButtonText}
+                    </button>
+
+                    <a href="../p/{id}" target="_blank" class="hover:bg-accent flex gap-2 cursor-pointer text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg">
+                        👀 View
+                    </a>
+                </div>
+
                 <br>
                 <div class="debug">
                     <p class="text-2xl">Debug options</p>
@@ -439,7 +446,7 @@
                         saveBuild();
                         editor.getModel().setValue("console.log('Write your event here!')");
                     }}>
-                        <Save /> Save
+                        💾 Save
                     </button>
                 </div>
             </div>
