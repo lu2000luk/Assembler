@@ -1,0 +1,34 @@
+Firebase configs:
+- Google auth enabled
+- Github auth enabled
+- Firestore enabled
+
+Firestore setup:
+Make 2 collections with the following names
+- projects
+- listing
+
+Firestore security rules:
+
+rules_version = '2';
+
+service cloud.firestore {
+	match /databases/{database}/documents {
+  	match /projects/{documentId} {
+  	  allow read;
+      allow list: if false;
+  	}
+  	
+  	match /projects/{documentId} {
+    		allow create: if request.auth.uid != null && !exists(/databases/$(database)/documents/projects/$(documentId)) && request.auth.uid == request.resource.data.owner;
+  	    allow write: if request.auth.uid != null && request.auth.uid == resource.data.owner;
+  	}
+  	
+  	match /listing/{documentId} {
+  	    allow read, write, create, delete: if request.auth.uid != null && request.auth.uid == documentId;
+  	}
+  }
+}
+
+
+Remember to change the config in src/lib/firebase.ts!!!!
