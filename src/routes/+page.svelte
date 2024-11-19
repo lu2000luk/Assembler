@@ -30,23 +30,37 @@
 
         console.log(docID);
 
-        let newDoc = await setDoc(doc(firestore, "projects", docID), {
-            name: newProjectName,
-            owner: $user?.uid,
-            data: "{}"
-        });
-
-        let oldUserDoc = await getDoc(doc(firestore, "listing", $user?.uid));
-
-        if (!oldUserDoc.exists()) {
-            let userDoc = await setDoc(doc(firestore, "listing", $user?.uid), {
-                ownedProjects: [docID]
+        try {
+            let newDoc = await setDoc(doc(firestore, "projects", docID), {
+                name: newProjectName,
+                owner: $user.uid,
+                data: "{}"
             });
-        } else {
-            let userDoc = await setDoc(doc(firestore, "listing", $user?.uid), {
-                // @ts-ignore
-                ownedProjects: [...oldUserDoc.data()?.ownedProjects, doc(firestore, "projects", docID)]
-            }, { merge: true });
+
+            console.log(newDoc);
+        } catch (e) {
+            console.error(e);
+            alert('Project name/id already exists!');
+            return;
+        }
+
+        try {
+            let oldUserDoc = await getDoc(doc(firestore, "listing", $user?.uid));
+
+            if (!oldUserDoc.exists()) {
+                let userDoc = await setDoc(doc(firestore, "listing", $user?.uid), {
+                    ownedProjects: [docID]
+                });
+            } else {
+                let userDoc = await setDoc(doc(firestore, "listing", $user?.uid), {
+                    // @ts-ignore
+                    ownedProjects: [...oldUserDoc.data()?.ownedProjects, doc(firestore, "projects", docID)]
+                }, { merge: true });
+            }
+        } catch (e) {
+            console.error(e);
+            alert('An error occurred while creating the project');
+            return;
         }
 
         newProjectInputMode = false;

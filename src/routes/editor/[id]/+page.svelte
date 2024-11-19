@@ -8,6 +8,9 @@
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
     import Plus from "lucide-svelte/icons/plus";
+    import { userStore } from "sveltefire";
+
+    const user = userStore(auth);
 
     import Text from '$lib/components/text.svelte';
     import Group from "$lib/components/group.svelte";
@@ -137,20 +140,20 @@
 
         let docRef = doc(firestore, "projects", id);
         try {
-            await setDoc(docRef, { data: JSON.stringify(build) });
+            await setDoc(docRef, { data: JSON.stringify(build), owner: $user.uid });
         } catch (e) {
             console.error("Error adding document: ", e);
-            saveBuildButtonText = "Error!";
+            saveBuildButtonText = "Error! "+e;
             saveBuildButtonDisabled = false;
             return;
         }
 
         saveBuildButtonText = "Saved!";
+        saveBuildButtonDisabled = false;
 
         setTimeout(() => {
             saveBuildButtonText = "Save";
-            saveBuildButtonDisabled = false;
-        }, 2000);
+        }, 1500);
     }
 
     function edit(e) {
