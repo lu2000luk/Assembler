@@ -128,9 +128,29 @@
         addingChild = false;
     }
 
+    let saveBuildButtonText = $state("Save");
+    let saveBuildButtonDisabled = $state(false);
+
     async function saveBuild() {
+        saveBuildButtonText = "Saving...";
+        saveBuildButtonDisabled = true;
+
         let docRef = doc(firestore, "projects", id);
-        await setDoc(docRef, { data: JSON.stringify(build) });
+        try {
+            await setDoc(docRef, { data: JSON.stringify(build) });
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            saveBuildButtonText = "Error!";
+            saveBuildButtonDisabled = false;
+            return;
+        }
+
+        saveBuildButtonText = "Saved!";
+
+        setTimeout(() => {
+            saveBuildButtonText = "Save";
+            saveBuildButtonDisabled = false;
+        }, 2000);
     }
 
     function edit(e) {
@@ -187,6 +207,11 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
          <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="editorWindow w-full h-full select-none overflow-y-auto" onclick={edit}>
+            <div class="absolute projectSettings m-5">
+                <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
+                    {saveBuildButtonText}
+                </button>
+            </div>
             <div class="renderedContent flex items-center flex-col mt-24">
                 {#key rebuild}
                     {#each build.components as component}
