@@ -34,7 +34,7 @@
             let newDoc = await setDoc(doc(firestore, "projects", docID), {
                 name: newProjectName,
                 owner: $user.uid,
-                data: "{}"
+                data: JSON.stringify({components: []})
             });
 
             console.log(newDoc);
