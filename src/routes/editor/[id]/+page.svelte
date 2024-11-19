@@ -90,12 +90,22 @@
 
     let editorPropsValues= $state({});
 
+    let projectOwner = $state("");
+
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
         let docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             build = JSON.parse(docSnap.data().data);
+
+            if (docSnap.data().owner !== $user.uid) {
+                alert("You don't have permission to edit this project!");
+                location.href = '/';
+                return;
+            };
+
+            projectOwner = docSnap.data().owner;
         } else {
             if (browser) {
                 alert("No such document!");
@@ -248,7 +258,7 @@
                 <div class="debug">
                     <p class="text-2xl">Debug options</p>
                     <p>Project ID: {id}</p>
-                    <p>Owner: {$user.uid}</p>
+                    <p>Project Owner: {projectOwner}</p>
                     <div class="flex gap-5">
                         <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
                                 rebuild = Math.random();
@@ -257,6 +267,17 @@
                         </button>
                         <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={(e) => {console.log($state.snapshot(build)); e.target.setAttribute("disabled", "true"); setTimeout(() => {e.target.removeAttribute("disabled")}, 500)}}>
                             📝 Log build
+                        </button>
+                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                            const blob = new Blob([JSON.stringify(build)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'build.json';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }}>
+                            📤 Download build
                         </button>
                     </div>
                 </div>
