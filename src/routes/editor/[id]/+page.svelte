@@ -8,6 +8,7 @@
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
     import Plus from "lucide-svelte/icons/plus";
+    import Trash2 from "lucide-svelte/icons/trash-2";
     import { userStore } from "sveltefire";
 
     const user = userStore(auth);
@@ -208,6 +209,22 @@
         }
     }
 
+    function deleteComponent(componentId) {
+        let componentIndex = build.components.findIndex(component => component.id === componentId);
+
+        if (componentIndex === -1) {
+            build.components.forEach(parent => {
+                if (parent.children) {
+                    componentIndex = parent.children.findIndex(child => child.id === componentId);
+                }
+            });
+        }
+
+        if (componentIndex !== -1) {
+            build.components.splice(componentIndex, 1);
+        }
+    }
+
     setInterval(() => {
         try {saveBuild(true);} catch {}
     }, 60000);
@@ -316,9 +333,15 @@
 
 {#if editingComponent}
     <div class="componentEditor absolute p-2 rounded-lg min-w-64 border-accent border-2 backdrop-blur-md noEditorExit bg-background bg-opacity-50" bind:this={componentEditor}>
-        <h2 class="selectedComponentType text-xl">
-            {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="selectedComponentType text-xl">
+                {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
+            </h2>
+
+            <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent hover:border-error p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {deleteComponent(selectedComponent.id); rebuild = (Math.random() * 10000) + Math.random(); editingComponent = false;}}>
+                <Trash2 class="text-text" />
+            </button>            
+        </div>
         <div class="selectedComponentEditId my-2 grid gap-2 grid-cols-2 items-center">
             <p class="text-lg">ID:</p>
             <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder="Component ID" autocomplete="off" bind:value={editorIdEdit} onchange={() => {
