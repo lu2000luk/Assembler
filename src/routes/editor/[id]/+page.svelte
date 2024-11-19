@@ -72,13 +72,13 @@
         }
     }
 
-    const eventCodePrefix = ```
+    const eventCodePrefix = `
         console.log("Event fired!");
 
         function getComponentById(id) {
             return document.getElementById("c_"+id);
         };
-    ```;
+    `;
 
     let componentIcons = {
         "text": "📝",
