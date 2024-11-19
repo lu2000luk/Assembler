@@ -184,7 +184,7 @@
             target = target.children[0];
         }
 
-        let id = target.id.split("_")[2];
+        let id = target.id.split("_")[1];
 
         if (id) {
             let component = build.components.find(component => component.id === id);
@@ -219,19 +219,21 @@
     }
 
     function deleteComponent(componentId) {
-        // TO FIX: ERROR WHILE DELETING GROUPS...
-
         let componentIndex = build.components.findIndex(component => component.id === componentId);
 
         if (componentIndex === -1) {
             build.components.forEach(parent => {
                 if (parent.children) {
-                    componentIndex = parent.children.findIndex(child => child.id === componentId);
+                    let childIndex = parent.children.findIndex(child => child.id === componentId);
+                    if (childIndex !== -1) {
+                        parent.children.splice(childIndex, 1);
+                        componentIndex = -2; // Mark as found in children
+                    }
                 }
             });
         }
 
-        if (componentIndex !== -1) {
+        if (componentIndex >= 0) {
             build.components.splice(componentIndex, 1);
         }
     }
@@ -288,13 +290,13 @@
                         {#if components[component.type]}
                             <!-- svelte-ignore svelte_component_deprecated -->
                             <div class="developmentComponent p-2 border-primary border-2 cursor-pointer rounded-lg">
-                                <svelte:component this={components[component.type].component} args={component.props} id={"c_"+components[component.type].idPrefix+"_"+component.id}>
+                                <svelte:component this={components[component.type].component} args={component.props} id={"c"+"_"+component.id}>
                                     {#if components[component.type].canHaveChildren}
                                         {#each component.children as child}
                                             {#if components[child.type]}
                                                 <!-- svelte-ignore svelte_component_deprecated -->
                                                 <div class="developmentChildren p-2 border-secondary border-2 rounded-lg">
-                                                    <svelte:component this={components[child.type].component} args={child.props} id={"c_"+components[component.type].idPrefix+"_"+child.id} />
+                                                    <svelte:component this={components[child.type].component} args={child.props} id={"c"+"_"+child.id} />
                                                 </div>
                                             {/if}
                                         {/each}
@@ -356,16 +358,18 @@
 {#if editingComponent}
     <div class="componentEditor absolute p-2 rounded-lg min-w-64 border-accent border-2 backdrop-blur-md noEditorExit bg-background bg-opacity-50" bind:this={componentEditor}>
         <div class="flex justify-between items-center">
-            <h2 class="selectedComponentType text-xl">
-                {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
-            </h2>
-
+            <div class="flex items-end">
+                <h2 class="selectedComponentType text-xl hover:underline transition-all duration-200 hover:tracking-wide cursor-pointer">
+                    {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
+                </h2>
+            </div>
+            
             <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent hover:border-error p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {deleteComponent(selectedComponent.id); rebuild = (Math.random() * 10000) + Math.random(); editingComponent = false;}}>
                 <Trash2 class="text-text" />
             </button>            
         </div>
         <div class="selectedComponentEditId my-2 grid gap-2 grid-cols-2 items-center">
-            <p class="text-lg">ID:</p>
+            <p class="text-lg">ID</p>
             <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder="Component ID" autocomplete="off" bind:value={editorIdEdit} onchange={() => {
                 if (!editorIdEdit) {return;}
                 selectedComponent.id = editorIdEdit;
