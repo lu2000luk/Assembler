@@ -54,8 +54,6 @@ export const components = {
 }
 
 export const eventCodePrefix = `
-    console.log("Event fired!");
-
     function getComponentById(id) {
         return document.getElementById("c_"+id);
     };
