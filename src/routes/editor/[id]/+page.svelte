@@ -4,11 +4,12 @@
     let { data } = $props();
     let { id } = data;
 
-    import { doc, setDoc, getDoc } from "firebase/firestore"; 
+    import { doc, setDoc, getDoc, FieldValue } from "firebase/firestore"; 
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
     import Plus from "lucide-svelte/icons/plus";
     import Trash2 from "lucide-svelte/icons/trash-2";
+    import ChevronRight from "lucide-svelte/icons/chevron-right";
     import { userStore } from "sveltefire";
 
     const user = userStore(auth);
@@ -73,6 +74,12 @@
         "button": "🔘",
         "input": "📄",
         "separator": "➖"
+    }
+
+    let eventIcons = {
+        "click": "🖱️",
+        "change": "🔄",
+        "focus": "🔍",
     }
 
     let build = $state({ components: [] });
@@ -359,7 +366,7 @@
     <div class="componentEditor absolute p-2 rounded-lg min-w-64 border-accent border-2 backdrop-blur-md noEditorExit bg-background bg-opacity-50" bind:this={componentEditor}>
         <div class="flex justify-between items-center">
             <div class="flex items-end">
-                <h2 class="selectedComponentType text-xl hover:underline transition-all duration-200 hover:tracking-wide cursor-pointer">
+                <h2 class="selectedComponentType text-2xl hover:underline transition-all duration-200 hover:tracking-wide cursor-pointer">
                     {selectedComponent.type[0].toUpperCase() + selectedComponent.type.slice(1)}
                 </h2>
             </div>
@@ -375,7 +382,11 @@
                 selectedComponent.id = editorIdEdit;
             }}>
         </div>
+        <div class="mb-2"></div>
         <hr>
+        <p class="text-xl mt-2">
+            Properties
+        </p>
         <div class="selectedComponentEditProps my-2 grid gap-2 grid-cols-2 items-center">
             {#each Object.keys(editorPropsEdit) as prop}
                 <p class="text-lg">{prop[0].toUpperCase() + prop.slice(1)}</p>
@@ -392,6 +403,21 @@
                         rebuild = (Math.random() * 10000) + Math.random();
                     }}> 
                 {/if}
+            {/each}
+        </div>
+        <div class="mb-2"></div>
+        <hr>
+        <p class="text-xl mt-2">
+            Events
+        </p>
+        <div class="selectedComponentEditEvents my-2 grid gap-2 grid-cols-1 items-center">
+            {#each components[selectedComponent.type].availableEvents as event}
+                <div class="flex justify-between p-2 rounded-lg transition-all duration-200 m-2 hover:bg-accent cursor-pointer border-2 border-accent">
+                    <p class="text-lg">{eventIcons[event] ? eventIcons[event] : ""} {event[0].toUpperCase() + event.slice(1)}</p>
+                    <div>
+                        <ChevronRight />
+                    </div>
+                </div>
             {/each}
         </div>
     </div>
