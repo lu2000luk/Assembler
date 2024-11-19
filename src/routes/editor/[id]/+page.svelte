@@ -166,7 +166,6 @@
     }
 
     function edit(e) {
-        console.log(e);
         editingComponent = false;
 
         let target = e.target;
@@ -256,7 +255,7 @@
                             }}>
                                 🔁 Rebuild
                         </button>
-                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => console.log($state.snapshot(build))}>
+                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={(e) => {console.log($state.snapshot(build)); e.target.setAttribute("disabled", "true"); setTimeout(() => {e.target.removeAttribute("disabled")}, 500)}}>
                             📝 Log build
                         </button>
                     </div>

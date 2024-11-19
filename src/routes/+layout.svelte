@@ -28,7 +28,7 @@
 	<SignedIn let:signOut>
 		<div class="navbar flex justify-between m-4 items-center select-none">
 			<div class="name">
-				<a class="text-2xl cursor-pointer font-bold inline-block bg-clip-text bg-gradient-to-r from-primary to-accent transition-all" style="color: transparent;" href="../../">
+				<a class="text-2xl hover:tracking-wide cursor-pointer font-bold inline-block bg-clip-text bg-gradient-to-r from-primary to-accent transition-all" style="color: transparent;" href="../../">
 					Assembler
 				</a>
 			</div>
