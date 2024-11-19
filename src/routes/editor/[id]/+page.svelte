@@ -134,7 +134,11 @@
     let saveBuildButtonText = $state("Save");
     let saveBuildButtonDisabled = $state(false);
 
-    async function saveBuild() {
+    async function saveBuild(ignoreLogging = false) {
+        if (!browser) {
+            return;
+        }
+
         saveBuildButtonText = "Saving...";
         saveBuildButtonDisabled = true;
 
@@ -142,9 +146,13 @@
         try {
             await setDoc(docRef, { data: JSON.stringify(build), owner: $user.uid });
         } catch (e) {
-            console.error("Error adding document: ", e);
-            saveBuildButtonText = "Error! "+e;
             saveBuildButtonDisabled = false;
+
+            if (ignoreLogging) {
+                return;
+            };
+
+            saveBuildButtonText = "Error!";
             return;
         }
 
@@ -200,6 +208,10 @@
         }
     }
 
+    setInterval(() => {
+        try {saveBuild(true);} catch {}
+    }, 60000);
+
     let rebuild = $state(0);
 </script>
 
@@ -214,6 +226,22 @@
                 <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
                     {saveBuildButtonText}
                 </button>
+                <br>
+                <div class="debug">
+                    <p class="text-2xl">Debug options</p>
+                    <p>Project ID: {id}</p>
+                    <p>Owner: {$user.uid}</p>
+                    <div class="flex gap-5">
+                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                                rebuild = Math.random();
+                            }}>
+                                🔁 Rebuild
+                        </button>
+                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => console.log($state.snapshot(build))}>
+                            📝 Log build
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="renderedContent flex items-center flex-col mt-24">
                 {#key rebuild}
@@ -306,11 +334,13 @@
                     <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
                         if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
                         selectedComponent.props[prop] = editorPropsValues[prop];
+                        rebuild = (Math.random() * 10000) + Math.random();
                     }}>
                 {:else if typeof components[selectedComponent.type].props[prop] === "number"}
                     <input type="number" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder={prop} autocomplete="off" bind:value={editorPropsValues[prop]} onchange={() => {
                         if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
                         selectedComponent.props[prop] = editorPropsValues[prop];
+                        rebuild = (Math.random() * 10000) + Math.random();
                     }}> 
                 {/if}
             {/each}
