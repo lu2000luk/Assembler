@@ -10,7 +10,11 @@
     import Plus from "lucide-svelte/icons/plus";
     import Trash2 from "lucide-svelte/icons/trash-2";
     import ChevronRight from "lucide-svelte/icons/chevron-right";
+    import Save from "lucide-svelte/icons/save";
     import { userStore } from "sveltefire";
+    import { onMount, onDestroy } from "svelte";
+
+    import loader from '@monaco-editor/loader';
 
     const user = userStore(auth);
 
@@ -68,6 +72,14 @@
         }
     }
 
+    const eventCodePrefix = ```
+        console.log("Event fired!");
+
+        function getComponentById(id) {
+            return document.getElementById("c_"+id);
+        };
+    ```;
+
     let componentIcons = {
         "text": "📝",
         "group": "📦",
@@ -98,6 +110,10 @@
     let editorPropsValues= $state({});
 
     let projectOwner = $state("");
+
+    let inEventEditor = $state(false);
+    let eventEditorName = $state("");
+    let eventEditorValue = $state("");
 
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
@@ -141,7 +157,8 @@
         let newComponent = {
             type: name,
             id: Math.random().toString(36).substring(7),
-            props: components[name].props
+            props: components[name].props,
+            events: {}
         }
 
         let parent = build.components.find(component => component.id === parentId);
@@ -215,8 +232,10 @@
 
             let componentRect = componentElement.getBoundingClientRect();
 
-            componentEditor.style.top = componentRect.top + "px";
-            componentEditor.style.left = (componentRect.right + 20) + "px";
+            try {
+                componentEditor.style.top = componentRect.top + "px";
+                componentEditor.style.left = (componentRect.right + 20) + "px";
+            } catch {}
 
             editorIdEdit = component.id;
             editorPropsEdit = component.props;
@@ -250,6 +269,32 @@
     }, 60000);
 
     let rebuild = $state(0);
+
+    let editor;
+    let monaco;
+    let monacoEditorContainer = $state();
+
+    onMount(async () => {
+		const monacoEditor = await import('monaco-editor');
+		loader.config({ monaco: monacoEditor.default });
+
+		monaco = await loader.init();
+
+        monaco.editor.setTheme('vs-dark');
+		editor = monaco.editor.create(monacoEditorContainer, {automaticLayout: true});
+
+		const model = monaco.editor.createModel(
+			"console.log('Write your event here!')",
+			'javascript'
+		);
+
+		editor.setModel(model);
+	});
+
+	onDestroy(() => {
+		monaco?.editor.getModels().forEach((model) => model.dispose());
+		editor?.dispose();
+	});
 </script>
 
 {#await getBuild()}
@@ -412,7 +457,15 @@
         </p>
         <div class="selectedComponentEditEvents my-2 grid gap-2 grid-cols-1 items-center">
             {#each components[selectedComponent.type].availableEvents as event}
-                <div class="flex justify-between p-2 rounded-lg transition-all duration-200 m-2 hover:bg-accent cursor-pointer border-2 border-accent">
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div class="flex justify-between p-2 rounded-lg transition-all duration-200 m-2 hover:bg-accent cursor-pointer border-2 border-accent" onclick={() => {
+                    inEventEditor = true;
+                    eventEditorName = event;
+                    eventEditorValue = selectedComponent.events[event];
+
+                    editor.getModel().setValue(eventEditorValue);
+                }}>
                     <p class="text-lg">{eventIcons[event] ? eventIcons[event] : ""} {event[0].toUpperCase() + event.slice(1)}</p>
                     <div>
                         <ChevronRight />
@@ -422,6 +475,42 @@
         </div>
     </div>
 {/if}
+
+<div class="eventEditorWrap" hidden={!inEventEditor}>
+    <div class="overlay absolute w-full h-full top-0 left-0 bg-background bg-opacity-50 z-40"></div>
+    <div class="eventEditor absolute z-50 w-4/6 h-5/6 rounded-lg border-2 bg-background border-accent">
+        <div class="h-1/6 flex items-center">
+            <div class="eventEditorTitle flex justify-between p-4 w-full">
+                <h2 class="text-2xl">{eventIcons[eventEditorName] ? eventIcons[eventEditorName] : ""} {eventEditorName}</h2>
+                <div class="flex gap-3 items-center">
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-error p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        inEventEditor = false;
+                    }}>
+                        ❌ Close
+                    </button>
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        eval(eventCodePrefix + editor.getModel().getValue());
+                    }}>
+                        ▶️ Run
+                    </button>
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        selectedComponent.events[eventEditorName] = editor.getModel().getValue();
+                        inEventEditor = false;
+                        saveBuild();
+                        editor.getModel().setValue("console.log('Write your event here!')");
+                    }}>
+                        <Save /> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex h-5/6">
+            <div class="monacoContainer rounded-lg w-full h-full" bind:this={monacoEditorContainer}></div>
+        </div>
+    </div>
+</div>
+
 
 <style>
     .editorWrapper {
@@ -434,5 +523,15 @@
         background: url("../../grid_bg.svg");
         background-size: 10%;
         background-repeat: repeat;
+    }
+
+    .eventEditor {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    [hidden] {
+        display: none;
     }
 </style>
