@@ -177,7 +177,7 @@
         }
     }
 
-    let rebuild = ""
+    let rebuild = $state(0);
 </script>
 
 {#await getBuild()}
