@@ -210,6 +210,8 @@
     }
 
     function deleteComponent(componentId) {
+        // TO FIX: ERROR WHILE DELETING GROUPS...
+
         let componentIndex = build.components.findIndex(component => component.id === componentId);
 
         if (componentIndex === -1) {
