@@ -19,6 +19,11 @@
 
     const user = userStore(auth);
 
+    if (browser && !$user?.uid) {
+        alert("You need to be logged in to access this page!");
+        location.href = '/login';
+    }
+
     let componentIcons = {
         "text": "📝",
         "group": "📦",
