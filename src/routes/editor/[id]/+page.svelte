@@ -552,7 +552,7 @@
                 </div>
             </div>
 
-            <div class="flex gap-5 mt-5">
+            <div class="flex gap-5 my-5">
                 <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
                     if (confirm("Are you sure you want to delete this project?")) {
                         deleteDoc(doc(firestore, "projects", id));
