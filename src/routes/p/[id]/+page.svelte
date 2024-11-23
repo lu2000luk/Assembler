@@ -7,12 +7,17 @@
     import { doc, setDoc, getDoc, FieldValue } from "firebase/firestore"; 
     import { auth, firestore } from '$lib/firebase';
     import { browser } from '$app/environment';
-    import { SignedOut } from 'sveltefire';
     import { onMount } from 'svelte';
     
     import { eventCodePrefix, components } from '$lib/components';
 
     let build = $state({});
+
+    if (browser) {
+        if (window === window.top) {
+            location.href = '/view/'+id;
+        }
+    }
 
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
@@ -58,17 +63,6 @@
         });
     });
 </script>
-
-<SignedOut>
-    <div class="navbar flex justify-between m-4 items-center select-none">
-        <div class="name">
-            <a class="text-2xl hover:tracking-wide cursor-pointer font-bold inline-block bg-clip-text bg-gradient-to-r from-primary to-accent transition-all" style="color: transparent;" href="../../">
-                Assembler
-            </a>
-        </div>
-        <button onclick={() => {location.href = "/"}} class="px-5 py-2 border-2 rounded-lg border-accent transition-all duration-200 hover:bg-accent cursor-pointer">Create your own</button>
-    </div>
-</SignedOut>
 
 {#await getBuild()}
     <p>Loading...</p>

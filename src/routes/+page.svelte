@@ -9,7 +9,7 @@
 
     let newProjectInputMode = $state(false);
     let newProjectName = $state('');
-
+    
     async function newProject() {
         if (newProjectName.length < 5) {
             alert('Project name must be at least 5 characters long');

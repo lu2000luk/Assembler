@@ -238,7 +238,7 @@
 </script>
 
 {#await getBuild()}
-    <div>Loading...</div>
+    <div class="absolute top-1/2 left-1/2 text-xl">Loading...</div>
 {:then}
     <div class="editorWrapper flex justify-center items-center w-full h-full mt-8 border-2 border-accent">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -256,7 +256,7 @@
                 </div>
 
                 <br>
-                <div class="debug">
+                <div class="debug hidden">
                     <p class="text-2xl">Debug options</p>
                     <p>Project ID: {id}</p>
                     <p>Project Owner: {projectOwner}</p>
