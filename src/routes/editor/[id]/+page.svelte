@@ -65,7 +65,8 @@
         if (docSnap.exists()) {
             build = JSON.parse(docSnap.data().data);
 
-            if (browser && !$user?.uid) {
+            
+            if (browser && !$user.uid) {
                 alert("You need to be logged in to access this page!");
                 location.href = '/login';
                 return;

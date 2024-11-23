@@ -3,7 +3,14 @@
 
     import { GithubAuthProvider, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
     import { auth } from "$lib/firebase";
+    import { userStore } from "sveltefire";
     import gsap from "gsap";
+
+    const user = userStore(auth);
+
+    if ($user?.uid) {
+        location.href = "/";
+    }
 
     let card = $state();
 
