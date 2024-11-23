@@ -19,11 +19,6 @@
 
     const user = userStore(auth);
 
-    if (browser && !$user?.uid) {
-        alert("You need to be logged in to access this page!");
-        location.href = '/login';
-    }
-
     let componentIcons = {
         "text": "📝",
         "group": "📦",
@@ -61,12 +56,20 @@
     
     let projectName = $state("");
 
+    let enableDebugTools = $state(false);
+
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
         let docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             build = JSON.parse(docSnap.data().data);
+
+            if (browser && !$user?.uid) {
+                alert("You need to be logged in to access this page!");
+                location.href = '/login';
+                return;
+            }
 
             if (docSnap.data().owner !== $user.uid) {
                 alert("You don't have permission to edit this project!");
@@ -272,32 +275,34 @@
                 </div>
 
                 <br>
-                <div class="debug hidden">
-                    <p class="text-2xl">Debug options</p>
-                    <p>Project ID: {id}</p>
-                    <p>Project Owner: {projectOwner}</p>
-                    <div class="flex gap-5">
-                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
-                                rebuild = Math.random();
+                {#if enableDebugTools}
+                    <div class="debug">
+                        <p class="text-2xl">Debug options</p>
+                        <p>Project ID: {id}</p>
+                        <p>Project Owner: {projectOwner}</p>
+                        <div class="flex gap-5">
+                            <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                                    rebuild = Math.random();
+                                }}>
+                                    🔁 Rebuild
+                            </button>
+                            <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={(e) => {console.log($state.snapshot(build)); e.target.setAttribute("disabled", "true"); setTimeout(() => {e.target.removeAttribute("disabled")}, 500)}}>
+                                📝 Log build
+                            </button>
+                            <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                                const blob = new Blob([JSON.stringify(build)], { type: 'application/json' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'build.json';
+                                a.click();
+                                URL.revokeObjectURL(url);
                             }}>
-                                🔁 Rebuild
-                        </button>
-                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={(e) => {console.log($state.snapshot(build)); e.target.setAttribute("disabled", "true"); setTimeout(() => {e.target.removeAttribute("disabled")}, 500)}}>
-                            📝 Log build
-                        </button>
-                        <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
-                            const blob = new Blob([JSON.stringify(build)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'build.json';
-                            a.click();
-                            URL.revokeObjectURL(url);
-                        }}>
-                            📤 Download build
-                        </button>
+                                📤 Download build
+                            </button>
+                        </div>
                     </div>
-                </div>
+                {/if}
             </div>
             <div class="renderedContent flex items-center flex-col mt-24">
                 {#key rebuild}
@@ -480,7 +485,7 @@
     <div class="settings" onclick={() => {
         settings = false;
     }}>
-        <div class="settingsModal p-8 rounded-lg border-2 border-accent bg-background flex jusitfy-center items-center flex-col" onclick={(e) => e.stopPropagation()}>
+        <div class="settingsModal py-8 px-24 rounded-lg border-2 border-accent bg-background flex jusitfy-center items-center flex-col" onclick={(e) => e.stopPropagation()}>
             <h2 class="text-2xl">Settings</h2>
             <div class="changeName flex gap-5 mt-5 items-center">
                 <p class="text-lg">Project name</p>
@@ -489,6 +494,63 @@
                     updateDoc(doc(firestore, "projects", id), { name: projectName });
                 }}>
             </div>
+            <div class="flex gap-5 mt-5">
+                <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                    enableDebugTools = !enableDebugTools;
+                }}>
+                    {enableDebugTools ? "🔒 Disable debug tools" : "🔓 Enable debug tools"}
+                </button>
+            </div>
+
+            <div class="export_import">
+                <div class="flex gap-5 mt-5">
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        const blob = new Blob([JSON.stringify(build)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'build.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }}>
+                        📤 Export project
+                    </button>
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        if (confirm("Are you sure you want to import a project? This will overwrite your current project.")) {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = '.json';
+                            input.onchange = async (e) => {
+                                const file = e.target.files[0];
+                                const reader = new FileReader();
+                                reader.onload = async (e) => {
+                                    const text = e.target.result;
+                                    try {
+                                        const data = JSON.parse(text);
+
+                                        if (!data.components || typeof data.components !== "object" || !Array.isArray(data.components)) {
+                                            alert("JSON file is not a valid project file!");
+                                            return;
+                                        }
+
+                                        build = data;
+                                        saveBuild();
+
+                                        settings = false;
+                                    } catch (e) {
+                                        alert("Invalid JSON file!");
+                                    }
+                                }
+                                reader.readAsText(file);
+                            }
+                            input.click();
+                        }
+                    }}>
+                        📥 Import project
+                    </button>
+                </div>
+            </div>
+
             <div class="flex gap-5 mt-5">
                 <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
                     if (confirm("Are you sure you want to delete this project?")) {
@@ -542,8 +604,6 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 50%;
-        height: 50%;
     }
 
     [hidden] {
