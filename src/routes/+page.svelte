@@ -88,7 +88,7 @@
         {#each data?.ownedProjects as project}
             <Doc ref={project} let:data>
                 <!-- svelte-ignore a11y_consider_explicit_label -->
-                <a href="/editor/{data?.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')}">
+                <a href="/editor/{project["_key"]["path"]["segments"].at(-1)}">
                     <div class="project flex justify-start p-8 m-4 rounded-lg border-2 border-accent transition-all hover:bg-accent duration-200 cursor-pointer">
                         <p>{data?.name}</p>
                     </div>

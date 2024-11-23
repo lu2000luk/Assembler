@@ -58,6 +58,8 @@
     let inEventEditor = $state(false);
     let eventEditorName = $state("");
     let eventEditorValue = $state("");
+    
+    let projectName = $state("");
 
     async function getBuild() {
         let docRef = doc(firestore, "projects", id);
@@ -73,6 +75,7 @@
             };
 
             projectOwner = docSnap.data().owner;
+            projectName = docSnap.data().name;
         } else {
             if (browser) {
                 alert("No such document!");
@@ -215,6 +218,8 @@
 
     let rebuild = $state(0);
 
+    let settings = $state(false);
+
     let editor;
     let monaco;
     let monacoEditorContainer = $state();
@@ -251,13 +256,19 @@
         <div class="editorWindow w-full h-full select-none overflow-y-auto" onclick={edit}>
             <div class="absolute projectSettings m-5">
                 <div class="flex gap-5">
-                    <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
+                    <button disabled={saveBuildButtonDisabled} class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent py-2 px-12 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={saveBuild}>
                         💾 {saveBuildButtonText}
                     </button>
 
-                    <a href="../p/{id}" target="_blank" class="hover:bg-accent flex gap-2 cursor-pointer text-text border-2 border-accent py-2 px-24 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg">
+                    <a href="../p/{id}" target="_blank" class="hover:bg-accent flex gap-2 cursor-pointer text-text border-2 border-accent py-2 px-12 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg">
                         👀 View
                     </a>
+
+                    <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent py-2 px-12 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                        settings = true;
+                    }}>
+                        ⚙️ Settings
+                    </button>
                 </div>
 
                 <br>
@@ -463,6 +474,39 @@
     </div>
 </div>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+{#if settings}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="settings" onclick={() => {
+        settings = false;
+    }}>
+        <div class="settingsModal p-8 rounded-lg border-2 border-accent bg-background flex jusitfy-center items-center flex-col" onclick={(e) => e.stopPropagation()}>
+            <h2 class="text-2xl">Settings</h2>
+            <div class="changeName flex gap-5 mt-5 items-center">
+                <p class="text-lg">Project name</p>
+                <input type="text" class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" autocapitalize="off" placeholder="Project name" autocomplete="off" bind:value={projectName} onchange={() => {
+                    if (!projectName) {return;}
+                    updateDoc(doc(firestore, "projects", id), { name: projectName });
+                }}>
+            </div>
+            <div class="flex gap-5 mt-5">
+                <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                    if (confirm("Are you sure you want to delete this project?")) {
+                        deleteDoc(doc(firestore, "projects", id));
+                        location.href = '/';
+                    }
+                }}>
+                    🗑️ Delete project
+                </button>
+                <button class="hover:bg-accent flex gap-2 text-text border-2 border-accent p-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
+                    settings = false;
+                }}>
+                    ❌ Close
+                </button>
+            </div>
+        </div>
+    </div>
+{/if}
 
 <style>
     .editorWrapper {
@@ -472,7 +516,7 @@
     }
 
     .editorWindow {
-        background: url("../../grid_bg.svg");
+        background: url("../../../grid_bg.svg");
         background-size: 10%;
         background-repeat: repeat;
     }
@@ -481,6 +525,25 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+
+    .settings {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+    }
+
+    .settingsModal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50%;
+        height: 50%;
     }
 
     [hidden] {
