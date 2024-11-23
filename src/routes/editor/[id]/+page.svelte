@@ -23,14 +23,23 @@
         "text": "📝",
         "group": "📦",
         "button": "🔘",
-        "input": "📄",
-        "separator": "➖"
+        "input": "📩",
+        "separator": "➖",
+        "textarea": "📜",
+        "image": "🖼️",
+        "video": "📹",
+        "audio": "🔊",
+        "link": "🔗",
+        "youtube": "🎥",
     }
 
     let eventIcons = {
         "click": "🖱️",
         "change": "🔄",
         "focus": "🔍",
+        "play": "▶️",
+        "pause": "⏸️",
+        "ended": "⏹️",
     }
 
     let build = $state({ components: [] });
@@ -252,7 +261,7 @@
 </script>
 
 {#await getBuild()}
-    <div class="absolute top-1/2 left-1/2 text-xl">Loading...</div>
+    <div class="absolute top-1/2 left-1/2 text-xl" style="transform: translate(-50%, -50%);">Loading...</div>
 {:then}
     <div class="editorWrapper flex justify-center items-center w-full h-full mt-8 border-2 border-accent">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -415,7 +424,19 @@
                         if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
                         selectedComponent.props[prop] = editorPropsValues[prop];
                         rebuild = (Math.random() * 10000) + Math.random();
-                    }}> 
+                    }}>
+                {:else if typeof components[selectedComponent.type].props[prop] === "boolean"}
+                    <select class="border-2 rounded-lg border-accent focus:border-secondary outline-none bg-background p-2" bind:value={editorPropsValues[prop]} onchange={() => {
+                        if (!editorPropsEdit[prop] || !editorPropsValues[prop]) {return;}
+                        selectedComponent.props[prop] = editorPropsValues[prop];
+                        rebuild = (Math.random() * 10000) + Math.random();
+
+                        console.log(editorPropsValues[prop]);
+                        console.log(selectedComponent.props[prop]);
+                    }}>
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
                 {/if}
             {/each}
         </div>
