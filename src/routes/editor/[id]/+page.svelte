@@ -28,9 +28,9 @@
         "textarea": "📜",
         "image": "🖼️",
         "video": "📹",
-        "audio": "🔊",
+        "audio": "🔊", // TO DO
         "link": "🔗",
-        "youtube": "🎥",
+        "youtube": "🎥", // TO DO
     }
 
     let eventIcons = {
@@ -298,17 +298,6 @@
                             </button>
                             <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={(e) => {console.log($state.snapshot(build)); e.target.setAttribute("disabled", "true"); setTimeout(() => {e.target.removeAttribute("disabled")}, 500)}}>
                                 📝 Log build
-                            </button>
-                            <button class="hover:bg-accent disabled:hover:bg-background disabled:bg-opacity-85 disabled:border-primary flex gap-2 text-text border-2 border-accent p-2 mt-2 bg-background bg-opacity-15 backdrop-blur transition-all duration-200 rounded-lg" onclick={() => {
-                                const blob = new Blob([JSON.stringify(build)], { type: 'application/json' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = 'build.json';
-                                a.click();
-                                URL.revokeObjectURL(url);
-                            }}>
-                                📤 Download build
                             </button>
                         </div>
                     </div>
